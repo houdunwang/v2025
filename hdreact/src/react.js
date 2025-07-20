@@ -18,7 +18,7 @@ function createElement(type, props, ...children) {
     }
 }
 
-let nextUnitOfWork, wipFiber, currentRoot
+let nextUnitOfWork, wipRoot, currentRoot
 function render(element, container) {
     nextUnitOfWork = {
         dom: container,
@@ -26,16 +26,10 @@ function render(element, container) {
             children: [element]
         }
     }
-    wipFiber = nextUnitOfWork
+    wipRoot = nextUnitOfWork
 }
 
-export function update() {
-    nextUnitOfWork = {
-        ...currentRoot,
-        alternate: currentRoot
-    }
-    wipFiber = nextUnitOfWork
-}
+
 
 function workLoop(deadling) {
     let shouldYield = false
@@ -43,7 +37,7 @@ function workLoop(deadling) {
         nextUnitOfWork = performUnitOfWork(nextUnitOfWork)
         shouldYield = deadling.timeRemaining() < 1
     }
-    if (!nextUnitOfWork && wipFiber) {
+    if (!nextUnitOfWork && wipRoot) {
         commitRoot()
     }
     requestIdleCallback(workLoop)
@@ -54,9 +48,9 @@ requestIdleCallback(workLoop)
 function commitRoot() {
     deletions.forEach(commitWork)
     deletions = []
-    commitWork(wipFiber.child)
-    currentRoot = wipFiber
-    wipFiber = null
+    commitWork(wipRoot.child)
+    currentRoot = wipRoot
+    wipRoot = null
 }
 
 function commitWork(fiber) {
@@ -105,7 +99,36 @@ function performUnitOfWork(fiber) {
     }
 }
 
+function update() {
+    nextUnitOfWork = {
+        ...currentRoot,
+        alternate: currentRoot
+    }
+    wipRoot = nextUnitOfWork
+}
+
+export function useState(initValue) {
+    const oldHook = wipFiber.alternate && wipFiber.alternate.hooks[wipFiber.hookIndex]
+    const hook = {
+        state: oldHook ? oldHook.state : initValue,
+        queue: []
+    }
+    const actions = oldHook ? oldHook.queue : hook.queue
+    actions.forEach(action => hook.state = action instanceof Function ? action(hook.state) : action)
+    const setState = action => {
+        hook.queue.push(action)
+        update()
+    }
+    wipFiber.hooks.push(hook)
+    wipFiber.hookIndex++
+    return [hook.state, setState]
+}
+
+let wipFiber
 function updateFunctionComponent(fiber) {
+    wipFiber = fiber
+    wipFiber.hooks = []
+    wipFiber.hookIndex = 0
     fiber.props.children = [fiber.type(fiber.props)]
     reconcileChildren(fiber, fiber.props.children)
 }
