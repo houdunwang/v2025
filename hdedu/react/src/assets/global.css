@@ -1,0 +1,22 @@
+body{
+	@apply bg-muted;
+}
+
+@custom-variant dark (&:is(.dark *));
+*{
+	@apply outline-none;
+}
+a{
+	&:hover,&.active{
+		@apply text-primary;
+	}
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+	}
+  body {
+    @apply bg-background text-foreground;
+	}
+}
