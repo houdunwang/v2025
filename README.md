@@ -12,10 +12,10 @@
 
 ## 目录说明
 
-| 目录    | 说明            | 使用技术                                                     |
-| ------- | --------------- | ------------------------------------------------------------ |
-| hdedu   | 卧龙课堂项目    | react19、laravel、tanstack query、shadcn 、tanstack form、mysql、tailwindcss、typescript |
-| hdreact | 手写 react 框架 | javascript                                                   |
+| 目录    | 说明          | 使用技术                                                     |
+| ------- | ------------- | ------------------------------------------------------------ |
+| hdedu   | 卧龙课堂项目  | react19、laravel、tanstack query、shadcn 、tanstack form、mysql、tailwindcss、typescript |
+| hdreact | 手写react框架 | javascript                                                   |
 
 
 
