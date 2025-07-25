@@ -45,10 +45,36 @@ function workLoop(deadling) {
 
 requestIdleCallback(workLoop)
 
+export function useEffect(callback, deps) {
+    const effect = {
+        callback, deps
+    }
+
+    wipFiber.effects.push(effect)
+}
+
+function commitEffect(fiber) {
+    if (!fiber) return
+    fiber.effects?.forEach((effect, index) => {
+        if (!fiber.alternate) {
+            effect.callback()
+        } else {
+            const deps = effect.deps
+            const oldDeps = fiber.alternate.effects[index].deps
+            if (!deps || deps.some((dep, index) => dep != oldDeps[index])) {
+                effect?.callback()
+            }
+        }
+    })
+    commitEffect(fiber.child)
+    commitEffect(fiber.sibling)
+
+}
 function commitRoot() {
     deletions.forEach(commitWork)
     deletions = []
     commitWork(wipRoot.child)
+    commitEffect(wipRoot.child)
     currentRoot = wipRoot
     wipRoot = null
 }
@@ -64,7 +90,7 @@ function commitWork(fiber) {
         commitDeletion(fiber, parentDom)
         return
     }
-    if (fiber.effectTag === 'UPDATE') {
+    if (fiber.effectTag === 'UPDATE' && fiber.dom) {
         updateDom(fiber.dom, fiber.alternate.props, fiber.props)
     }
     if (fiber.effectTag === 'PLACEMENT' && fiber.dom) {
@@ -99,6 +125,8 @@ function performUnitOfWork(fiber) {
     }
 }
 
+
+
 function update() {
     nextUnitOfWork = {
         ...currentRoot,
@@ -129,6 +157,7 @@ function updateFunctionComponent(fiber) {
     wipFiber = fiber
     wipFiber.hooks = []
     wipFiber.hookIndex = 0
+    wipFiber.effects = []
     fiber.props.children = [fiber.type(fiber.props)]
     reconcileChildren(fiber, fiber.props.children)
 }

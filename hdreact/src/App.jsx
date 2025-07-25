@@ -1,7 +1,10 @@
-import React, { useState } from "./react";
+import React, { useEffect, useState } from "./react";
 
-function H3() {
-  return <h3>h3</h3>;
+function H3({ value }) {
+  useEffect(() => {
+    console.log("useEffect.. h3");
+  }, [value]);
+  return <h3>h3-{value}</h3>;
 }
 
 function H4() {
@@ -12,12 +15,21 @@ function App() {
   const handle = () => {
     setValue((v) => v + 1);
   };
+
+  useEffect(() => {
+    console.log("useEffect.. 1");
+  }, [value]);
+
+  useEffect(() => {
+    console.log("useEffect.. 2 ");
+  }, [value]);
   return (
     <div>
       <button id="app" onClick={handle}>
         houdunren - {value}
       </button>
       {value % 2 ? <div id="houdunren">奇数</div> : <div id="hdcms">偶数</div>}
+      <H3 value={value} />
       {/* {a % 2 ? <H3>奇数</H3> : <H4>偶数</H4>} */}
     </div>
   );
