@@ -47,7 +47,7 @@ requestIdleCallback(workLoop)
 
 export function useEffect(callback, deps) {
     const effect = {
-        callback, deps
+        callback, deps, clear: null
     }
 
     wipFiber.effects.push(effect)
@@ -57,12 +57,15 @@ function commitEffect(fiber) {
     if (!fiber) return
     fiber.effects?.forEach((effect, index) => {
         if (!fiber.alternate) {
-            effect.callback()
+            effect.clear = effect.callback()
         } else {
             const deps = effect.deps
             const oldDeps = fiber.alternate.effects[index].deps
+            if (deps.length) {
+                fiber.alternate.effects[index].clear?.()
+            }
             if (!deps || deps.some((dep, index) => dep != oldDeps[index])) {
-                effect?.callback()
+                effect.clear = effect?.callback()
             }
         }
     })

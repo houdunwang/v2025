@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "./react";
 
 function H3({ value }) {
   useEffect(() => {
-    console.log("useEffect.. h3");
+    // console.log("useEffect.. h3");
   }, [value]);
   return <h3>h3-{value}</h3>;
 }
@@ -17,11 +17,23 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("useEffect.. 1");
+    // console.log("useEffect.. 1");
+    return () => {
+      console.log("clear 0");
+    };
+  }, []);
+
+  useEffect(() => {
+    // console.log("useEffect.. 1");
+    return () => {
+      console.log("clear 1");
+    };
   }, [value]);
 
   useEffect(() => {
-    console.log("useEffect.. 2 ");
+    // console.log("useEffect.. 2 ");
+
+    return () => console.log("clear 2");
   }, [value]);
   return (
     <div>
